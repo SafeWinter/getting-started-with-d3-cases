@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+        <title>Ch1 - Example | Getting Started with D3</title>
+    </head>
+    <body>
+        <h2>Ch1 - Example | The Basic Setup</h2>
+        <script src="/demos/js/d3.js"></script>
+        <script>
+            function draw(data) {
+                "use strict";
+
+                // badass visualization code goes here
+                console.log('data:', data);
+            }
+
+            d3.json("/demos/data/some_data.json", draw);
+        </script>
+    </body>
+</html>

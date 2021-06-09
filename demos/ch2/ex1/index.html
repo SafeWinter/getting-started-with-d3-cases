@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <title>Ch2 - Example 1 | Getting Started with D3</title>
+</head>
+
+<body>
+    <h2>Ch2 - Example 1 | Building a Simple Subway Train Status Board</h2>
+    <script src="/demos/js/d3.js"></script>
+    <script>
+        function draw(data) {
+            "use strict";
+
+            // badass visualization code goes here
+            d3.select("body")
+                .append("ul")
+                .selectAll("li")
+                .data(data)
+                .enter()
+                .append("li")
+                .text(function (d) {
+                    return d.name + ": " + d.status;
+                })
+                .style('font-weight', function(d) {
+                    if(d.status == 'GOOD SERVICE') {
+                        return 'normal';
+                    } else {
+                        return 'bold';
+                    }
+                });
+        }
+
+        d3.json("/demos/data/service_status.json", draw);
+    </script>
+</body>
+
+</html>

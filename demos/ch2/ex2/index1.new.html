@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <title>Ch2 - Example 2 | Getting Started with D3</title>
+</head>
+
+<body>
+    <h2>Ch2 - Example 2 | Graphing Mean Daily Plaza Traffic (with labels)</h2>
+    <script src="/demos/js/d3.v6.js"></script>
+    <script>
+        let json = null;
+        const draw = data => {
+            "use strict";
+
+            // badass visualization code goes here
+            json = data;
+
+            /* Outside join(): */
+            // const lines = d3.select('body')
+            //     .append('div')
+            //         .attr('class', 'chart')
+            //     .selectAll('div.line')
+            //     .data(data.cash)
+            //     .join(enter => enter.append('div').attr('class', 'line'));
+
+            // lines.append('div')
+            //         .attr('class', 'label')
+            //         .text(d => d.name);
+            
+            // lines.append('div')
+            //     .attr('class', 'bar')
+            //     .style('width', d => `${d.count / 100}px`)
+            //     .text(d => Math.round(d.count));
+
+            /* within join(): */
+            d3.select('body')
+                .append('div')
+                    .attr('class', 'chart')
+                .selectAll('div.line')
+                .data(data.cash)
+                .join(enter => {
+                    const lines = enter.append('div')
+                        .attr('class', 'line');
+                    
+                    lines.append('div')
+                        .attr('class', 'label')
+                        .text(d => d.name);
+                    
+                    lines.append('div')
+                        .attr('class', 'bar')
+                        .style('width', d => `${d.count / 100}px`)
+                        .text(d => Math.round(d.count));
+                });
+        }
+
+        d3.json("/demos/data/plaza_traffic.json").then(draw)
+            .catch(console.error);
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        div.chart {
+            font-family: sans-serif;
+            font-size: 0.7em;
+        }
+        div.bar {
+            background-color: DarkRed;
+            color: white;
+            height: 3em;
+            line-height: 3em;
+            padding-right: 1em;
+            margin-top: .1rem;
+            text-align: right;
+            margin-left: 25em;
+        }
+        div.label {
+            height: 3em;
+            line-height: 3em;
+            padding-right: 1em;
+            margin-bottom: .1rem;
+            float: left;
+            width: 25em;
+            text-align: right;
+        }
+    </style>
+</body>
+
+</html>
