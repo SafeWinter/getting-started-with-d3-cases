@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <title>Ch3 - Example 2 | Getting Started with D3</title>
+</head>
+
+<body>
+    <h2>Ch3 - Example 2 | Graphing Turnstile Traffic</h2>
+    <script src="/demos/js/d3.js"></script>
+    <script>
+        let json = null;
+        function draw(data) {
+            "use strict";
+
+            // badass visualization code goes here
+            json = data;
+
+            // Viewport setup
+            var margin = 40,
+                width = 700 - margin,
+                height = 300 - margin;
+            
+            var chart = d3.select('body')
+                .append('svg')
+                    .attr('width', width + margin)
+                    .attr('height', height + margin)
+                .append('g')
+                    .attr('class', 'chart');
+            
+                    chart.selectAll('circle.times_square')
+                .data(data.times_square)
+                .enter()
+                .append('circle')
+                    .attr('class', 'times_square');
+
+                    chart.selectAll('circle.grand_central')
+                .data(data.grand_central)
+                .enter()
+                .append('circle')
+                    .attr('class', 'grand_central');
+
+            // scales
+            // y_scale
+            var count_extent = d3.extent(
+                data.times_square.concat(data.grand_central),
+                function(d) { return d.count }
+            );
+            var count_scale = d3.scale.linear()
+                .domain(count_extent)
+                .range([height, margin]);
+            // x_scale
+            var time_extent = d3.extent(
+                data.times_square.concat(data.grand_central),
+                function(d) { return d.time }
+            );
+            var time_scale = d3.time.scale()
+                .domain(time_extent)
+                .range([margin, width]);
+            
+            // draw circles
+            chart.selectAll('circle')
+                .attr('cx', function(d) { return time_scale(d.time) })
+                .attr('cy', function(d) { return count_scale(d.count) })
+                .attr('r', 3);
+
+            // Axes
+            // x 
+            var time_axis = d3.svg.axis().scale(time_scale);
+            chart.append('g')
+                .attr('class', 'x axis')
+                .attr('transform', 'translate(0, '+height+')')
+                .call(time_axis);
+            // y
+            var count_axis = d3.svg.axis().scale(count_scale).orient('left');
+            chart.append('g')
+                .attr('class', 'y axis')
+                .attr('transform', 'translate('+margin+', 0)')
+                .call(count_axis);
+
+            // paths
+            var line = d3.svg.line()
+                .x(function(d) { return time_scale(d.time) })
+                .y(function(d) { return count_scale(d.count) });
+
+            // make lines
+            chart.append('path')
+                .attr('class', 'times_square')
+                .attr('d', line(data.times_square));
+            chart.append('path')
+                .attr('class', 'grand_central')
+                .attr('d', line(data.grand_central));
+
+            // axis labels
+            // y
+            chart.select('.y.axis')
+                .append('text')
+                    .text('mean number of turnstile revolutions')
+                    .attr('transform', 'rotate(90, '+ (-margin) +', 0)')
+                    .attr('x', 20)
+                    .attr('y', 0);
+            // x
+            chart.select('.x.axis')
+                .append('text')
+                    .text('time')
+                    .attr('x', function(){ return (width / 1.6) - margin })
+                    .attr('y', margin / 1.5);
+
+        }
+
+        d3.json("/demos/data/turnstile_traffic.json", draw);
+    </script>
+    <style>
+        .axis {
+            font-family: Arial;
+            font-size: 0.6em;
+        }
+        path {
+            fill: none;
+            stroke: black;
+            stroke-width: 2px;
+        }
+        path.times_square {
+            stroke: DeepPink;
+        }
+        path.grand_central {
+            stroke: MediumSeaGreen;
+        }
+        .tick {
+            fill: none;
+            stroke: black;
+        }
+        circle {
+            stroke: black;
+            stroke-width: 0.5px;
+        }
+        circle.times_square {
+            fill: DeepPink;
+        }
+        circle.grand_central {
+            fill: MediumSeaGreen;
+        }
+    </style>
+</body>
+
+</html>

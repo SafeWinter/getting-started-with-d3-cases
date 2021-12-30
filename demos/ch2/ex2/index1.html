@@ -18,7 +18,7 @@
             // badass visualization code goes here
             json = data;
 
-            d3.select('body')
+            var lines = d3.select('body')
                 .append('div')
                     .attr('class', 'chart')
                 .selectAll('div.line')
@@ -27,16 +27,14 @@
                 .append('div')
                     .attr('class', 'line');
 
-            d3.selectAll('div.line')
-                .append('div')
-                    .attr('class', 'label')
-                    .text(function(d) {return d.name});
+            lines.append('div')
+                .attr('class', 'label')
+                .text(function(d) {return d.name});
 
-            d3.selectAll('div.line')
-                .append('div')
-                    .attr('class', 'bar')
-                    .style('width', function(d) { return d.count / 100 + 'px' })
-                    .text(function(d) { return Math.round(d.count) });
+            lines.append('div')
+                .attr('class', 'bar')
+                .style('width', function(d) { return d.count / 100 + 'px' })
+                .text(function(d) { return Math.round(d.count) });
         }
 
         d3.json("/demos/data/plaza_traffic.json", draw);
@@ -57,7 +55,7 @@
             padding-right: 1em;
             margin-top: .1rem;
             text-align: right;
-            margin-left: 25em;
+            margin-left: 25em; /* newly added */
         }
         div.label {
             height: 3em;
@@ -65,7 +63,7 @@
             padding-right: 1em;
             margin-bottom: .1rem;
             float: left;
-            width: 25em;
+            width: 25em;  /* enlarged width */
             text-align: right;
         }
     </style>

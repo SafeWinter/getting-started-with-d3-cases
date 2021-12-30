@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <title>Ch3 - Example 1 | Getting Started with D3</title>
+</head>
+
+<body>
+    <h2>Ch3 - Example 1 | Bus Breakdown, Accident, and Injury</h2>
+    <script src="/demos/js/d3.v6.js"></script>
+    <script>
+        let json = null;
+        const draw = data => {
+            "use strict";
+
+            // badass visualization code goes here
+            json = data;
+
+            const margin = 50,
+                width = 700,
+                height = 300;
+
+            // plot circles            
+            const x_extent = d3.extent(data, d => d.collision_with_injury);
+            const y_extent = d3.extent(data, d => d.dist_between_fail);
+            
+            const x_scale = d3.scaleLinear()  // v6.7.0
+                .domain(x_extent)
+                .range([margin, width - margin]);
+            const y_scale = d3.scaleLinear()  // v6.7.0
+                .domain(y_extent)
+                .range([height - margin, margin]);
+
+            d3.select('body')
+                .append('svg')
+                    .attr('width', width)
+                    .attr('height', height)
+                .selectAll('circle')
+                .data(data)
+                .join(enter => enter.append('circle')
+                    .attr('r', 5)
+                    .attr('cx', d => x_scale(d.collision_with_injury))
+                    .attr('cy', d => y_scale(d.dist_between_fail))
+                );
+
+            // Add axes
+            // x
+            const x_axis = d3.axisBottom(x_scale);  // v6.7.0
+            d3.select('svg')
+                .append('g')
+                    .attr('class', 'x axis')
+                    .attr('transform', `translate(0, ${(height - margin)})`)
+                    .call(x_axis);
+            // y
+            const y_axis = d3.axisLeft(y_scale);    // v6.7.0
+            d3.select('svg')
+                .append('g')
+                    .attr('class', 'y axis')
+                    .attr('transform', `translate(${margin}, 0)`)
+                    .call(y_axis);
+            
+            // Axis title
+            // x
+            d3.select('.x.axis')
+                .append('text')
+                    .attr('fill', 'black')  // v6.7.0 
+                    .text("collisions with injury (per million miles)")
+                    .attr('x', (width / 2) - margin)
+                    .attr('y', margin / 1.5);
+            // y
+            d3.select('.y.axis')
+                .append('text')
+                    .attr('fill', 'black')  // v6.7.0
+                    .text('mean distance between failure (miles)')
+                    .attr('transform', 'rotate(-90, -43, 0) translate(-100)');
+        }
+
+        d3.json("/demos/data/bus_perf.json").then(draw)
+            .catch(console.error);
+    </script>
+    <style>
+        .axis path{
+            fill: none;
+            stroke: black;
+        }
+        .axis {
+            font-size: 8pt;
+            font-family: sans-serif;
+        }
+        .tick {
+            fill: none;
+            /* stroke: black; */
+        }
+        circle {
+            stroke: black;
+            stroke-width: 0.5px;
+            fill: royalblue;
+            opacity: 0.6;
+        }
+    </style>
+</body>
+
+</html>
