@@ -4,11 +4,12 @@
 <head>
     <meta charset="utf-8">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    <title>Ch4 - Example 1 | Getting Started with D3</title>
+    <link rel="stylesheet" href="train_colours.css">
+    <title>Ch4 - Example 2 | Getting Started with D3</title>
 </head>
 
 <body>
-    <h2>Ch4 - Example 1 | A Subway Wait Assessment UI I—Interactions</h2>
+    <h2>Ch4 - Example 2 | Subway Wait Assessment UI II—Transitions</h2>
     
     <div id="timeseries"></div>
     <div id="key"></div>
@@ -78,7 +79,8 @@
                     .attr('id', function(d) { return d.line_id });
 
             key_items.append('div')
-                .attr('class', 'key_square')
+                // .attr('class', 'key_square')
+                .attr('class', function(d){ return 'key_square ' + d.line_id })  // add line_id accordingly
                 .attr('id', function(d){ return 'key_square_' + d.line_id });
 
             key_items.append('div')
@@ -110,9 +112,78 @@
                     .interpolate('linear');
                 var g = chart.append('g')
                     .attr('id', id + '_path')  // Line_4_path
-                    .attr('class', id.split('_')[1]);  // 4
+                    // .attr('class', id.split('_')[1]);  // 4
+                    .attr('class', 'timeseries ' + id);  // 4
+                
                 g.append('path')
-                    .attr('d', line(data))
+                    .attr('d', line(data));
+                
+                g.selectAll('circle')
+                    .data(data)
+                    .enter()
+                    .append('circle')
+                        .attr('cx', function(d){ return time_scale(d.time) })
+                        .attr('cy', function(d){ return percent_scale(d.late_percent) })
+                        .attr('r', 0);
+
+                g.selectAll('circle')
+                    .transition()
+                    .delay(function(d, i){ return i / data.length * 1000 })
+                    .attr('r', 5)
+                    .each('end', function(d, i){
+                        if(i === data.length - 1) {
+                            add_label(this, d);
+                        }
+                    });
+                function add_label(circle, d) {
+                    // enlargement
+                    d3.select(circle)
+                        .transition()
+                            .attr('r', 9);
+                    // labeling
+                    g.append('text')
+                        .text(d.line_id.split('_')[1])  // id: Line_4 -> 4
+                        .attr('x', time_scale(d.time))
+                        .attr('y', percent_scale(d.late_percent))
+                        .attr('dy', '0.35em')
+                        .attr('class', 'linelabel')
+                        .attr('text-anchor', 'middle')
+                        .style('opacity', 0)
+                        .style('fill', 'white')
+                        .transition()
+                            .style('opacity', 1);
+                }
+                g.selectAll('circle')
+                    .on('mouseover', function(d) {
+                        d3.select(this)
+                            .transition()
+                            .attr('r', 9);
+                    })
+                    .on('mouseout', function(d, i) {
+                        if(i !== data.length - 1) {
+                            d3.select(this)
+                                .transition()
+                                    .attr('r', 5);
+                        }
+                    })
+                    .on('mouseover.tooltip', function(d, i) {
+                        d3.select('text#' + d.line_id).remove();
+                        d3.select('#chart')
+                            .append('text')
+                                .attr('id', d.line_id)
+                                .attr('class', d.line_id)  // add color to tooltip
+                                .text(d.late_percent + '%')
+                                .attr('x', time_scale(d.time) + 10)
+                                .attr('y', percent_scale(d.late_percent) - 10)
+                    })
+                    .on('mouseout.tooltip', function(d, i) {
+                        d3.select('text#' + d.line_id)
+                            .transition()
+                            .duration(500)
+                            .style('opacity', 0)
+                            .attr('transform', 'translate(10, -10)')
+                            .remove();
+                    })
             }
 
         }
@@ -132,7 +203,8 @@
         }
         path {
             fill: none;
-            stroke: black;  /* corrected */
+            /* Solve the conflict with 'train_colours.css': */
+            /* stroke: black; */
         }
         .key {
             float: right;
@@ -151,6 +223,18 @@
         }
         #timeseries {
             float:left;
+        }
+        .timeseries path{
+            stroke-width:3px;
+        }
+        .timeseries circle{
+            stroke: white;
+        }
+        .timeseries text{
+            fill: white;
+            stroke: none;
+            font-size:12px;
+            font-weight: bold;
         }
     </style>
 </body>
